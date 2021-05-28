@@ -9,33 +9,45 @@ import (
 
 func TestFindEntries(t *testing.T) {
 	t.Run("It returns empty when there is no entry that sums to 2020", func(t *testing.T) {
-		assert.Equal(t, []int{}, day1.FindEntries([]int{}))
-		assert.Equal(t, []int{}, day1.FindEntries([]int{2}))
-		assert.Equal(t, []int{}, day1.FindEntries([]int{2, 3}))
-		assert.Equal(t, []int{}, day1.FindEntries([]int{2020, 3}))
+		assert.Equal(t, []int{}, day1.FindEntriesThatSumTo2020(2, []int{}))
+		assert.Equal(t, []int{}, day1.FindEntriesThatSumTo2020(2, []int{2}))
+		assert.Equal(t, []int{}, day1.FindEntriesThatSumTo2020(2, []int{2, 3}))
+		assert.Equal(t, []int{}, day1.FindEntriesThatSumTo2020(2, []int{2020, 3}))
 	})
 
-	t.Run("It returns the two entries that sum to 2020", func(t *testing.T) {
-		assert.Equal(t, []int{2020, 0}, day1.FindEntries([]int{2020, 0}))
-		assert.Equal(t, []int{1, 2019}, day1.FindEntries([]int{1, 2019}))
-		assert.Equal(t, []int{1, 2019}, day1.FindEntries([]int{1, 100, 2019}))
-		assert.Equal(t, []int{1, 2019}, day1.FindEntries([]int{100, 1, 2019}))
+	t.Run("It returns the two entries that sums to 2020", func(t *testing.T) {
+		assert.Equal(t, []int{2020, 0}, day1.FindEntriesThatSumTo2020(2, []int{2020, 0}))
+		assert.Equal(t, []int{1, 2019}, day1.FindEntriesThatSumTo2020(2, []int{1, 2019}))
+		assert.Equal(t, []int{1, 2019}, day1.FindEntriesThatSumTo2020(2, []int{1, 100, 2019}))
+		assert.Equal(t, []int{1, 2019}, day1.FindEntriesThatSumTo2020(2, []int{100, 1, 2019}))
+	})
+
+	t.Run("It finds the given number of entries that sums to 2020", func(t *testing.T) {
+		assert.Equal(t, []int{2020}, day1.FindEntriesThatSumTo2020(1, []int{2020, 0}))
+		assert.Equal(t, []int{1000, 1001, 19}, day1.FindEntriesThatSumTo2020(3, []int{1000, 1001, 18, 19}))
 	})
 }
 
 func TestSolvePuzzle(t *testing.T) {
 	t.Run("It returns 0 when the two numbers cannot be found", func(t *testing.T) {
-		assert.Equal(t, 0, day1.SolvePuzzle([]int{}))
-		assert.Equal(t, 0, day1.SolvePuzzle([]int{2}))
-		assert.Equal(t, 0, day1.SolvePuzzle([]int{2, 2, 4}))
+		assert.Equal(t, 0, day1.SolvePuzzle(2, []int{}))
+		assert.Equal(t, 0, day1.SolvePuzzle(2, []int{2}))
+		assert.Equal(t, 0, day1.SolvePuzzle(2, []int{2, 2, 4}))
 	})
-	t.Run("It returns the two numbers that sum to 2020 multiplied", func(t *testing.T) {
-		assert.Equal(t, 2019, day1.SolvePuzzle([]int{2019, 1}))
-		assert.Equal(t, 4036, day1.SolvePuzzle([]int{2018, 2}))
+
+	t.Run("It returns the two numbers that sums to 2020 multiplied", func(t *testing.T) {
+		assert.Equal(t, 2019, day1.SolvePuzzle(2, []int{2019, 1}))
+		assert.Equal(t, 4036, day1.SolvePuzzle(2, []int{2018, 2}))
+	})
+
+	t.Run("It returns the 3 numbers that sums to 2020 multiplied", func(t *testing.T) {
+		assert.Equal(t, 2018, day1.SolvePuzzle(3, []int{2018, 1, 1}))
+		assert.Equal(t, 4034, day1.SolvePuzzle(3, []int{2017, 2, 90, 1}))
 	})
 
 	t.Run("It solves the puzzle", func(t *testing.T) {
-		assert.Equal(t, 776064, day1.SolvePuzzle(day1Input))
+		assert.Equal(t, 776064, day1.SolvePuzzle(2, day1Input))
+		assert.Equal(t, 6964490, day1.SolvePuzzle(3, day1Input))
 	})
 }
 
