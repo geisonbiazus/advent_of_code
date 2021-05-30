@@ -1,35 +1,28 @@
 package day1
 
 func FindEntriesThatSumTo2020(numberOfEntries int, input []int) []int {
-	if numberOfEntries == 1 {
-		for _, entry := range input {
-			if entry == 2020 {
-				return []int{entry}
+	entries, _ := findEntriesThatSumToAmount(numberOfEntries, 2020, input, []int{}, 0)
+	return entries
+}
+
+func findEntriesThatSumToAmount(numberOfEntries, amountToSum int, input, output []int, fromIndex int) ([]int, bool) {
+	if numberOfEntries == 0 {
+		return output, amountToSum == 0
+	}
+
+	for i := fromIndex; i < len(input); i++ {
+		v := input[i]
+		if v <= amountToSum {
+			out := append([]int{}, output...)
+			out = append(out, v)
+
+			if entries, ok := findEntriesThatSumToAmount(numberOfEntries-1, amountToSum-v, input, out, i+1); ok {
+				return entries, ok
 			}
 		}
 	}
 
-	if numberOfEntries == 2 {
-		for _, v1 := range input {
-			for _, v2 := range input {
-				if v1+v2 == 2020 {
-					return []int{v1, v2}
-				}
-			}
-		}
-	}
-
-	for _, v1 := range input {
-		for _, v2 := range input {
-			for _, v3 := range input {
-				if v1+v2+v3 == 2020 {
-					return []int{v1, v2, v3}
-				}
-			}
-		}
-	}
-
-	return []int{}
+	return output, false
 }
 
 func SolvePuzzle(numberOfEntries int, input []int) int {

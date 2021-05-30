@@ -26,6 +26,13 @@ func TestFindEntries(t *testing.T) {
 		assert.Equal(t, []int{2020}, day1.FindEntriesThatSumTo2020(1, []int{2020, 0}))
 		assert.Equal(t, []int{1000, 1001, 19}, day1.FindEntriesThatSumTo2020(3, []int{1000, 1001, 18, 19}))
 	})
+
+	t.Run("It finds the given number of entries that sums to 2020", func(t *testing.T) {
+		assert.Equal(t, []int{2020}, day1.FindEntriesThatSumTo2020(1, []int{2020, 0}))
+		assert.Equal(t, []int{2019, 1}, day1.FindEntriesThatSumTo2020(2, []int{2019, 10, 1}))
+		assert.Equal(t, []int{1000, 1001, 19}, day1.FindEntriesThatSumTo2020(3, []int{1000, 1001, 18, 19}))
+		assert.Equal(t, []int{500, 501, 1000, 19}, day1.FindEntriesThatSumTo2020(4, []int{500, 100, 501, 99, 1000, 20, 18, 17, 19, 16}))
+	})
 }
 
 func TestSolvePuzzle(t *testing.T) {
