@@ -19,7 +19,7 @@ type PasswordPolicy struct {
 	Password string
 }
 
-func ValidatePassword(policy Policy, password string) bool {
+func ValidatePasswordMinMaxRule(policy Policy, password string) bool {
 	count := 0
 
 	for i := 0; i < len(password); i++ {
@@ -31,11 +31,20 @@ func ValidatePassword(policy Policy, password string) bool {
 	return count >= policy.Min && count <= policy.Max
 }
 
-func CountValid(passwordPolicies []PasswordPolicy) int {
+func ValidatePasswordPositionRule(policy Policy, password string) bool {
+	validMin := string(password[policy.Min-1]) == policy.Letter
+	validMax := string(password[policy.Max-1]) == policy.Letter
+
+	return (validMin || validMax) && !(validMin && validMax)
+}
+
+type ValidatorFunc func(policy Policy, password string) bool
+
+func CountValid(passwordPolicies []PasswordPolicy, validatorFunc ValidatorFunc) int {
 	count := 0
 
 	for _, p := range passwordPolicies {
-		if ValidatePassword(p.Policy, p.Password) {
+		if validatorFunc(p.Policy, p.Password) {
 			count++
 		}
 	}
@@ -89,5 +98,17 @@ func SolvePart1(inputPath string) int {
 
 	defer input.Close()
 
-	return CountValid(ParseInput(input))
+	return CountValid(ParseInput(input), ValidatePasswordMinMaxRule)
+}
+
+func SolvePart2(inputPath string) int {
+	input, err := os.Open("input.txt")
+
+	if err != nil {
+		panic(err)
+	}
+
+	defer input.Close()
+
+	return CountValid(ParseInput(input), ValidatePasswordPositionRule)
 }

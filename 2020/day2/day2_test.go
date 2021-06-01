@@ -8,31 +8,38 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestValidatePassword(t *testing.T) {
-	assert.True(t, day2.ValidatePassword(policy(1, 3, "a"), "abcde"))
-	assert.True(t, day2.ValidatePassword(policy(1, 3, "a"), "aaabcde"))
-	assert.False(t, day2.ValidatePassword(policy(1, 3, "a"), "bcde"))
-	assert.False(t, day2.ValidatePassword(policy(1, 3, "a"), "aaaabcde"))
-	assert.True(t, day2.ValidatePassword(policy(3, 6, "b"), "abbbcde"))
-	assert.True(t, day2.ValidatePassword(policy(3, 6, "b"), "aaabbbbbbcde"))
-	assert.False(t, day2.ValidatePassword(policy(3, 6, "b"), "abbcde"))
-	assert.False(t, day2.ValidatePassword(policy(3, 6, "b"), "abbbbbbbbcde"))
+func TestValidatePasswordMinMaxRule(t *testing.T) {
+	assert.True(t, day2.ValidatePasswordMinMaxRule(policy(1, 3, "a"), "abcde"))
+	assert.True(t, day2.ValidatePasswordMinMaxRule(policy(1, 3, "a"), "aaabcde"))
+	assert.False(t, day2.ValidatePasswordMinMaxRule(policy(1, 3, "a"), "bcde"))
+	assert.False(t, day2.ValidatePasswordMinMaxRule(policy(1, 3, "a"), "aaaabcde"))
+	assert.True(t, day2.ValidatePasswordMinMaxRule(policy(3, 6, "b"), "abbbcde"))
+	assert.True(t, day2.ValidatePasswordMinMaxRule(policy(3, 6, "b"), "aaabbbbbbcde"))
+	assert.False(t, day2.ValidatePasswordMinMaxRule(policy(3, 6, "b"), "abbcde"))
+	assert.False(t, day2.ValidatePasswordMinMaxRule(policy(3, 6, "b"), "abbbbbbbbcde"))
+}
+
+func TestValidatePasswordPositionRule(t *testing.T) {
+	assert.True(t, day2.ValidatePasswordPositionRule(policy(1, 3, "a"), "abcde"))
+	assert.True(t, day2.ValidatePasswordPositionRule(policy(1, 3, "a"), "bbade"))
+	assert.False(t, day2.ValidatePasswordPositionRule(policy(1, 3, "a"), "bbbde"))
+	assert.False(t, day2.ValidatePasswordPositionRule(policy(1, 3, "a"), "abade"))
 }
 
 func TestCountValidPasswords(t *testing.T) {
-	assert.Equal(t, day2.CountValid([]day2.PasswordPolicy{}), 0)
+	assert.Equal(t, day2.CountValid([]day2.PasswordPolicy{}, day2.ValidatePasswordMinMaxRule), 0)
 	assert.Equal(t, day2.CountValid([]day2.PasswordPolicy{
 		pwPolicy(1, 3, "a", "asd"),
-	}), 1)
+	}, day2.ValidatePasswordMinMaxRule), 1)
 	assert.Equal(t, day2.CountValid([]day2.PasswordPolicy{
 		pwPolicy(2, 3, "a", "asd"),
-	}), 0)
+	}, day2.ValidatePasswordMinMaxRule), 0)
 
 	assert.Equal(t, day2.CountValid([]day2.PasswordPolicy{
 		pwPolicy(1, 3, "a", "asd"),
 		pwPolicy(1, 3, "a", "aaaasd"),
 		pwPolicy(1, 3, "a", "aasd"),
-	}), 2)
+	}, day2.ValidatePasswordMinMaxRule), 2)
 }
 
 func TestParseInput(t *testing.T) {
@@ -45,6 +52,7 @@ func TestParseInput(t *testing.T) {
 
 func TestSolvePuzzle(t *testing.T) {
 	assert.Equal(t, 396, day2.SolvePart1("./input.txt"))
+	assert.Equal(t, 428, day2.SolvePart2("./input.txt"))
 }
 
 func policy(min, max int, letter string) day2.Policy {
