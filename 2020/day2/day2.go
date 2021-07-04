@@ -90,7 +90,7 @@ func toInt(str string) int {
 }
 
 func SolvePart1(inputPath string) int {
-	input, err := os.Open("input.txt")
+	input, err := os.Open(inputPath)
 
 	if err != nil {
 		panic(err)
@@ -102,7 +102,7 @@ func SolvePart1(inputPath string) int {
 }
 
 func SolvePart2(inputPath string) int {
-	input, err := os.Open("input.txt")
+	input, err := os.Open(inputPath)
 
 	if err != nil {
 		panic(err)
