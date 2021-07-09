@@ -5,38 +5,118 @@ import (
 	"io"
 	"os"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
+type Measure struct {
+	Value int
+	Unit  string
+}
+
 type Passport struct {
-	BirthYear      string
-	IssueYear      string
-	ExpirationYear string
-	Height         string
+	BirthYear      int
+	IssueYear      int
+	ExpirationYear int
+	Height         Measure
 	HairColor      string
 	EyeColor       string
 	PassportID     string
 	CountryID      string
 }
 
-func (p Passport) IsValid() bool {
-	requiredFields := []string{
-		p.BirthYear,
-		p.IssueYear,
-		p.ExpirationYear,
-		p.Height,
-		p.HairColor,
-		p.EyeColor,
-		p.PassportID,
+func AreRequiredFieldsPresent(passport Passport) bool {
+	if passport.BirthYear == 0 {
+		return false
 	}
 
-	for _, v := range requiredFields {
-		if v == "" {
-			return false
-		}
+	if passport.IssueYear == 0 {
+		return false
+	}
+
+	if passport.ExpirationYear == 0 {
+		return false
+	}
+
+	if (passport.Height == Measure{}) {
+		return false
+	}
+
+	if passport.HairColor == "" {
+		return false
+	}
+
+	if passport.EyeColor == "" {
+		return false
+	}
+
+	if passport.PassportID == "" {
+		return false
 	}
 
 	return true
+}
+
+var hexColorRegex = regexp.MustCompile(`^#[0-9a-f]{6}$`)
+var passportIDRegex = regexp.MustCompile(`^\d{9}$`)
+
+func AreFieldsValid(passport Passport) bool {
+	if !isBetween(passport.BirthYear, 1920, 2002) {
+		return false
+	}
+
+	if !isBetween(passport.IssueYear, 2010, 2020) {
+		return false
+	}
+
+	if !isBetween(passport.ExpirationYear, 2020, 2030) {
+		return false
+	}
+
+	if !validateHeight(passport) {
+		return false
+	}
+
+	if !hexColorRegex.MatchString(passport.HairColor) {
+		return false
+	}
+
+	if !validateEyeColor(passport) {
+		return false
+	}
+
+	if !passportIDRegex.MatchString(passport.PassportID) {
+		return false
+	}
+
+	return true
+}
+
+func validateHeight(passport Passport) bool {
+	switch passport.Height.Unit {
+	case "cm":
+		return isBetween(passport.Height.Value, 150, 193)
+	case "in":
+		return isBetween(passport.Height.Value, 59, 76)
+	default:
+		return false
+	}
+}
+
+func isBetween(number, min, max int) bool {
+	return number >= min && number <= max
+}
+
+var eyeColors = []string{"amb", "blu", "brn", "gry", "grn", "hzl", "oth"}
+
+func validateEyeColor(passport Passport) bool {
+	for _, color := range eyeColors {
+		if passport.EyeColor == color {
+			return true
+		}
+	}
+
+	return false
 }
 
 var whiteSpaceRe = regexp.MustCompile(`\s`)
@@ -65,13 +145,13 @@ func parseField(passport Passport, field string) Passport {
 func setField(passport Passport, field, value string) Passport {
 	switch field {
 	case "byr":
-		passport.BirthYear = value
+		passport.BirthYear = parseInt(value)
 	case "iyr":
-		passport.IssueYear = value
+		passport.IssueYear = parseInt(value)
 	case "eyr":
-		passport.ExpirationYear = value
+		passport.ExpirationYear = parseInt(value)
 	case "hgt":
-		passport.Height = value
+		passport.Height = parseMeasure(value)
 	case "hcl":
 		passport.HairColor = value
 	case "ecl":
@@ -82,6 +162,30 @@ func setField(passport Passport, field, value string) Passport {
 		passport.CountryID = value
 	}
 	return passport
+}
+
+func parseInt(value string) int {
+	intVal, err := strconv.Atoi(value)
+
+	if err != nil {
+		return 0
+	}
+
+	return intVal
+}
+
+var measureRegex = regexp.MustCompile(`^(\d+)?(\D+)?$`)
+
+func parseMeasure(value string) Measure {
+	matches := measureRegex.FindStringSubmatch(value)
+	measure := Measure{}
+
+	if matches != nil {
+		measure.Value = parseInt(matches[1])
+		measure.Unit = matches[2]
+	}
+
+	return measure
 }
 
 func EachPassportData(input io.Reader) []string {
@@ -121,7 +225,27 @@ func SolvePart1(inputPath string) int {
 	countValid := 0
 
 	for _, data := range EachPassportData(input) {
-		if ParsePassport(data).IsValid() {
+		if AreRequiredFieldsPresent(ParsePassport(data)) {
+			countValid++
+		}
+	}
+
+	return countValid
+}
+
+func SolvePart2(inputPath string) int {
+	input, err := os.Open(inputPath)
+
+	if err != nil {
+		panic(err)
+	}
+
+	defer input.Close()
+
+	countValid := 0
+
+	for _, data := range EachPassportData(input) {
+		if AreFieldsValid(ParsePassport(data)) {
 			countValid++
 		}
 	}
